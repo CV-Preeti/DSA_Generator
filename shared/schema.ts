@@ -2,9 +2,33 @@ import { z } from "zod";
 
 export const difficultySchema = z.enum(["Easy", "Medium", "Hard"]);
 
+export const dsaTopics = [
+  "Arrays",
+  "String",
+  "Linked List",
+  "Stack",
+  "Queue",
+  "Binary Tree",
+  "Binary Search Tree",
+  "Heap",
+  "Hashing",
+  "Graph",
+  "Matrix",
+  "Recursion",
+  "Backtracking",
+  "Dynamic Programming",
+  "Greedy",
+  "Bit Manipulation",
+  "Sorting",
+  "Searching",
+  "Two Pointers",
+  "Sliding Window",
+  "Trie"
+] as const;
+
 export const questionGeneratorSchema = z.object({
   topic: z.string().min(1, "Company/Topic is required").default("Google"),
-  dsaTopic: z.string().min(1, "DSA Topic is required").default("Arrays"),
+  dsaTopic: z.enum(dsaTopics).default("Arrays"),
   questionCount: z.number().min(1).max(20).default(1),
   difficulty: difficultySchema.default("Medium"),
   detailed: z.boolean().default(false),

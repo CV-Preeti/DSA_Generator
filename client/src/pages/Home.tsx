@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { questionGeneratorSchema, type Question, type QuestionGeneratorInput } from "@shared/schema";
+import { questionGeneratorSchema, dsaTopics, type Question, type QuestionGeneratorInput } from "@shared/schema";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -49,16 +49,17 @@ export default function Home() {
       const blob = await pdfRes.blob();
       const url = URL.createObjectURL(blob);
       
-      // On macOS/Safari/Chrome, opening in a new tab is more reliable for direct printing
-      // than hidden iframes which sometimes fail due to sandbox restrictions
+      // Direct print approach: open in a new window and print immediately
       const printWindow = window.open(url, '_blank');
       if (printWindow) {
-        printWindow.onload = () => {
-          printWindow.print();
-          // We don't revoke URL immediately because printing might still be active
-        };
+        // Most modern browsers will handle PDF printing automatically
+        // or show the print preview immediately if the URL is a PDF blob
+        toast({
+          title: "Success",
+          description: "Questionnaire generated successfully.",
+        });
       } else {
-        // Fallback for popup blockers: just download it
+        // Fallback for popup blockers
         const link = document.createElement('a');
         link.href = url;
         link.download = 'dsa-questions.pdf';
@@ -68,11 +69,6 @@ export default function Home() {
           description: "Popup was blocked. PDF downloaded instead.",
         });
       }
-
-      toast({
-        title: "Success",
-        description: "Questionnaire generated successfully.",
-      });
     } catch (error) {
       toast({
         title: "Error",
@@ -120,9 +116,18 @@ export default function Home() {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>DSA Topic</FormLabel>
-                    <FormControl>
-                      <Input {...field} placeholder="e.g. Arrays, Trees, DP" />
-                    </FormControl>
+                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select topic" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {dsaTopics.map(topic => (
+                          <SelectItem key={topic} value={topic}>{topic}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                     <FormMessage />
                   </FormItem>
                 )}
