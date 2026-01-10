@@ -49,7 +49,7 @@ export default function Home() {
       const blob = await pdfRes.blob();
       const url = URL.createObjectURL(blob);
       
-      // Use an iframe to trigger the browser's print preview automatically
+      // Use a hidden iframe to trigger the browser's print preview automatically
       const iframe = document.createElement('iframe');
       iframe.style.position = 'fixed';
       iframe.style.right = '0';
@@ -73,6 +73,13 @@ export default function Home() {
         } catch (e) {
           // Fallback if silent print is blocked
           window.open(url, '_blank');
+        } finally {
+          // Clean up the iframe after a delay to ensure print dialog is triggered
+          setTimeout(() => {
+             if (document.body.contains(iframe)) {
+               document.body.removeChild(iframe);
+             }
+          }, 5000);
         }
       };
 
@@ -96,11 +103,11 @@ export default function Home() {
         <h1 className="text-3xl font-bold tracking-tight">DSA Question Generator</h1>
       </div>
 
-      <Card className="mb-8 border-slate-200 dark:border-slate-800 shadow-lg">
+      <Card className="mb-8 border-slate-200 dark:border-slate-800 shadow-lg overflow-visible">
         <CardHeader>
           <CardTitle>Configure Questionnaire</CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="overflow-visible">
           <Form {...form}>
             <form onSubmit={form.handleSubmit(handleGenerateAndPrint)} className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <FormField
@@ -123,13 +130,13 @@ export default function Home() {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>DSA Topic</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <Select onValueChange={field.onChange} value={field.value}>
                       <FormControl>
-                        <SelectTrigger>
+                        <SelectTrigger className="w-full">
                           <SelectValue placeholder="Select topic" />
                         </SelectTrigger>
                       </FormControl>
-                      <SelectContent>
+                      <SelectContent className="max-h-[300px] z-[100]">
                         {dsaTopics.map(topic => (
                           <SelectItem key={topic} value={topic}>{topic}</SelectItem>
                         ))}
@@ -164,13 +171,13 @@ export default function Home() {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Difficulty</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <Select onValueChange={field.onChange} value={field.value}>
                       <FormControl>
-                        <SelectTrigger>
+                        <SelectTrigger className="w-full">
                           <SelectValue placeholder="Select difficulty" />
                         </SelectTrigger>
                       </FormControl>
-                      <SelectContent>
+                      <SelectContent className="z-[100]">
                         <SelectItem value="Easy">Easy</SelectItem>
                         <SelectItem value="Medium">Medium</SelectItem>
                         <SelectItem value="Hard">Hard</SelectItem>
