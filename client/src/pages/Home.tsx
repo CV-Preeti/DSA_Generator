@@ -49,26 +49,33 @@ export default function Home() {
       const blob = await pdfRes.blob();
       const url = URL.createObjectURL(blob);
       
-      // Direct print approach: open in a new window and print immediately
-      const printWindow = window.open(url, '_blank');
-      if (printWindow) {
-        // Most modern browsers will handle PDF printing automatically
-        // or show the print preview immediately if the URL is a PDF blob
-        toast({
-          title: "Success",
-          description: "Questionnaire generated successfully.",
-        });
-      } else {
-        // Fallback for popup blockers
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = 'dsa-questions.pdf';
-        link.click();
-        toast({
-          title: "Notice",
-          description: "Popup was blocked. PDF downloaded instead.",
-        });
-      }
+      // Use an iframe to trigger the browser's print preview automatically
+      const iframe = document.createElement('iframe');
+      iframe.style.position = 'fixed';
+      iframe.style.right = '0';
+      iframe.style.bottom = '0';
+      iframe.style.width = '0';
+      iframe.style.height = '0';
+      iframe.style.border = '0';
+      iframe.src = url;
+      document.body.appendChild(iframe);
+      
+      iframe.onload = () => {
+        try {
+          // Focus and print automatically
+          iframe.contentWindow?.focus();
+          iframe.contentWindow?.print();
+          
+          toast({
+            title: "Success",
+            description: "Print dialog opened automatically.",
+          });
+        } catch (e) {
+          // Fallback if silent print is blocked
+          window.open(url, '_blank');
+        }
+      };
+
     } catch (error) {
       toast({
         title: "Error",
