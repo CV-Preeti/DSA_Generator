@@ -37,7 +37,7 @@ export default function Home() {
       const { questions: genQuestions } = await genRes.json();
       setQuestions(genQuestions);
 
-      // 2. Generate PDF and Print
+      // 2. Generate PDF
       const pdfRes = await fetch("/api/questions/pdf", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -49,25 +49,29 @@ export default function Home() {
       const blob = await pdfRes.blob();
       const url = URL.createObjectURL(blob);
       
-      // Create a hidden iframe to trigger print
-      const iframe = document.createElement('iframe');
-      iframe.style.display = 'none';
-      iframe.src = url;
-      document.body.appendChild(iframe);
-      
-      iframe.onload = () => {
-        iframe.contentWindow?.focus();
-        iframe.contentWindow?.print();
-        // Clean up after a delay
-        setTimeout(() => {
-          document.body.removeChild(iframe);
-          URL.revokeObjectURL(url);
-        }, 1000);
-      };
+      // On macOS/Safari/Chrome, opening in a new tab is more reliable for direct printing
+      // than hidden iframes which sometimes fail due to sandbox restrictions
+      const printWindow = window.open(url, '_blank');
+      if (printWindow) {
+        printWindow.onload = () => {
+          printWindow.print();
+          // We don't revoke URL immediately because printing might still be active
+        };
+      } else {
+        // Fallback for popup blockers: just download it
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = 'dsa-questions.pdf';
+        link.click();
+        toast({
+          title: "Notice",
+          description: "Popup was blocked. PDF downloaded instead.",
+        });
+      }
 
       toast({
         title: "Success",
-        description: "Questionnaire generated and sent to printer.",
+        description: "Questionnaire generated successfully.",
       });
     } catch (error) {
       toast({
@@ -83,11 +87,13 @@ export default function Home() {
   return (
     <div className="container mx-auto py-8 px-4 max-w-4xl">
       <div className="flex items-center gap-3 mb-8">
-        <BookOpen className="w-8 h-8 text-primary" />
-        <h1 className="text-3xl font-bold">DSA Question Generator</h1>
+        <div className="bg-primary/10 p-2 rounded-lg">
+          <BookOpen className="w-8 h-8 text-primary" />
+        </div>
+        <h1 className="text-3xl font-bold tracking-tight">DSA Question Generator</h1>
       </div>
 
-      <Card className="mb-8">
+      <Card className="mb-8 border-slate-200 dark:border-slate-800 shadow-lg">
         <CardHeader>
           <CardTitle>Configure Questionnaire</CardTitle>
         </CardHeader>
@@ -187,7 +193,7 @@ export default function Home() {
               <div className="md:col-span-2">
                 <Button 
                   type="submit" 
-                  className="w-full h-12 text-lg" 
+                  className="w-full h-12 text-lg shadow-md hover:shadow-lg transition-all" 
                   disabled={isGenerating}
                 >
                   {isGenerating ? (
@@ -198,7 +204,7 @@ export default function Home() {
                   ) : (
                     <>
                       <Printer className="mr-2 h-5 w-5" />
-                      Generate Questionnaire and Print
+                      Generate & Print
                     </>
                   )}
                 </Button>
@@ -209,10 +215,10 @@ export default function Home() {
       </Card>
 
       {questions.length > 0 && (
-        <div className="space-y-6">
-          <h2 className="text-2xl font-semibold">Generated Questions</h2>
+        <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+          <h2 className="text-2xl font-semibold border-b pb-2">Generated Questions</h2>
           {questions.map((q) => (
-            <Card key={q.id}>
+            <Card key={q.id} className="hover:border-primary/50 transition-colors">
               <CardHeader className="flex flex-row items-start justify-between space-y-0 gap-4">
                 <div className="space-y-1">
                   <CardTitle>{q.title}</CardTitle>
@@ -220,28 +226,28 @@ export default function Home() {
                     <Badge variant="outline">{q.dsaTopic}</Badge>
                     <Badge variant="secondary">{q.difficulty}</Badge>
                     {q.companyTags.map(tag => (
-                      <Badge key={tag} variant="ghost">{tag}</Badge>
+                      <Badge key={tag} variant="ghost" className="bg-slate-100 dark:bg-slate-800">{tag}</Badge>
                     ))}
                   </div>
                 </div>
               </CardHeader>
               <CardContent className="space-y-4">
-                <p className="text-muted-foreground whitespace-pre-wrap">{q.description}</p>
+                <p className="text-foreground leading-relaxed whitespace-pre-wrap">{q.description}</p>
                 {q.examples && q.examples.length > 0 && (
-                  <div className="space-y-4 bg-muted/50 p-4 rounded-lg">
-                    <h4 className="font-semibold text-sm uppercase tracking-wider">Examples</h4>
+                  <div className="space-y-4 bg-slate-50 dark:bg-slate-900/50 p-4 rounded-lg border border-slate-100 dark:border-slate-800">
+                    <h4 className="font-semibold text-xs uppercase tracking-widest text-muted-foreground">Examples</h4>
                     {q.examples.map((ex, idx) => (
                       <div key={idx} className="space-y-2 text-sm">
                         <div className="grid grid-cols-[80px_1fr] gap-2">
-                          <span className="font-mono font-bold">Input:</span>
-                          <code className="bg-background px-2 py-0.5 rounded border">{ex.input}</code>
+                          <span className="font-mono font-bold text-slate-500">Input:</span>
+                          <code className="bg-white dark:bg-slate-950 px-2 py-0.5 rounded border border-slate-200 dark:border-slate-800">{ex.input}</code>
                         </div>
                         <div className="grid grid-cols-[80px_1fr] gap-2">
-                          <span className="font-mono font-bold">Output:</span>
-                          <code className="bg-background px-2 py-0.5 rounded border">{ex.output}</code>
+                          <span className="font-mono font-bold text-slate-500">Output:</span>
+                          <code className="bg-white dark:bg-slate-950 px-2 py-0.5 rounded border border-slate-200 dark:border-slate-800">{ex.output}</code>
                         </div>
                         {ex.explanation && (
-                          <div className="pl-2 border-l-2 border-primary/20 italic">
+                          <div className="pl-2 border-l-2 border-primary/20 italic text-muted-foreground">
                             {ex.explanation}
                           </div>
                         )}
