@@ -103,11 +103,11 @@ export default function Home() {
         <h1 className="text-3xl font-bold tracking-tight">DSA Question Generator</h1>
       </div>
 
-      <Card className="mb-8 border-slate-200 dark:border-slate-800 shadow-lg overflow-visible">
+      <Card className="mb-8 border-slate-200 dark:border-slate-800 shadow-lg relative z-0">
         <CardHeader>
           <CardTitle>Configure Questionnaire</CardTitle>
         </CardHeader>
-        <CardContent className="overflow-visible">
+        <CardContent>
           <Form {...form}>
             <form onSubmit={form.handleSubmit(handleGenerateAndPrint)} className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <FormField
@@ -136,7 +136,7 @@ export default function Home() {
                           <SelectValue placeholder="Select topic" />
                         </SelectTrigger>
                       </FormControl>
-                      <SelectContent className="max-h-[300px] z-[100]">
+                      <SelectContent className="max-h-[300px]">
                         {dsaTopics.map(topic => (
                           <SelectItem key={topic} value={topic}>{topic}</SelectItem>
                         ))}
@@ -177,7 +177,7 @@ export default function Home() {
                           <SelectValue placeholder="Select difficulty" />
                         </SelectTrigger>
                       </FormControl>
-                      <SelectContent className="z-[100]">
+                      <SelectContent>
                         <SelectItem value="Easy">Easy</SelectItem>
                         <SelectItem value="Medium">Medium</SelectItem>
                         <SelectItem value="Hard">Hard</SelectItem>
