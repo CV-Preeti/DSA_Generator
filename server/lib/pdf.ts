@@ -17,11 +17,28 @@ export function generateQuestionsPDF(questions: Question[]): Promise<Buffer> {
       doc.fontSize(14).text(`${i + 1}. ${q.title}`, { continued: true });
       doc.fontSize(10).text(`  (${q.difficulty})`, { align: "right" });
       
-      doc.fontSize(10).fillColor("gray").text(`Tags: ${q.companyTags.join(", ")}`);
+      const tags = [q.dsaTopic, ...q.companyTags].filter(Boolean);
+      doc.fontSize(10).fillColor("gray").text(`Topic: ${q.dsaTopic} | Tags: ${q.companyTags.join(", ")}`);
       doc.fillColor("black");
       
       doc.moveDown(0.5);
       doc.fontSize(12).text(q.description);
+      
+      if (q.examples && q.examples.length > 0) {
+        doc.moveDown(0.5);
+        doc.fontSize(11).text("Examples:", { underline: true });
+        q.examples.forEach((ex, idx) => {
+          doc.fontSize(10).text(`Example ${idx + 1}:`, { continued: true });
+          doc.moveDown(0.2);
+          doc.fontSize(10).font("Courier").text(`Input: ${ex.input}`);
+          doc.text(`Output: ${ex.output}`);
+          if (ex.explanation) {
+            doc.font("Helvetica").text(`Explanation: ${ex.explanation}`);
+          }
+          doc.moveDown(0.5);
+        });
+      }
+      
       doc.moveDown(1.5);
     });
 

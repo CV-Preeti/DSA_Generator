@@ -1,7 +1,6 @@
 import OpenAI from "openai";
 import { Question, QuestionGeneratorInput } from "@shared/schema";
 
-// the integration sets these env vars
 const openai = new OpenAI({
   apiKey: process.env.AI_INTEGRATIONS_OPENAI_API_KEY,
   baseURL: process.env.AI_INTEGRATIONS_OPENAI_BASE_URL,
@@ -10,7 +9,9 @@ const openai = new OpenAI({
 export async function generateQuestions(input: QuestionGeneratorInput): Promise<Question[]> {
   const prompt = `Generate ${input.questionCount} Data Structures and Algorithms (DSA) questions.
   Target Company/Topic: ${input.topic}
+  DSA Topic: ${input.dsaTopic}
   Difficulty: ${input.difficulty}
+  Detailed: ${input.detailed ? "Yes (include input/output examples)" : "No"}
 
   Return a JSON object with a "questions" array.
   Each question should have:
@@ -19,8 +20,10 @@ export async function generateQuestions(input: QuestionGeneratorInput): Promise<
   - description: string (brief problem statement)
   - difficulty: string (Easy, Medium, or Hard)
   - companyTags: array of strings (relevant companies, include ${input.topic})
+  - dsaTopic: string (the specific DSA topic like ${input.dsaTopic})
+  ${input.detailed ? "- examples: array of objects with { input: string, output: string, explanation: string }" : ""}
 
-  Ensure the questions are relevant to the topic/company.
+  Ensure the questions are relevant to both the target company and the DSA topic.
   `;
 
   const response = await openai.chat.completions.create({
