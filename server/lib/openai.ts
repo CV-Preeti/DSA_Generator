@@ -20,6 +20,7 @@ export async function generateQuestions(input: QuestionGeneratorInput): Promise<
   - description: string (brief problem statement)
   - difficulty: string (Easy, Medium, or Hard)
   - companyTags: array of strings (relevant companies, include ${input.topic})
+  - practiceUrl: string (A valid URL to practice this question on a platform like LeetCode, GeeksforGeeks, or HackerRank. If not found, provide a search query link on Google for the question title)
   - dsaTopic: string (the specific DSA topic like ${input.dsaTopic})
   ${input.detailed ? "- examples: array of objects with { input: string, output: string, explanation: string }" : ""}
 

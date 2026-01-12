@@ -40,6 +40,7 @@ export const questionSchema = z.object({
   description: z.string(),
   difficulty: z.string(),
   companyTags: z.array(z.string()),
+  practiceUrl: z.string().url().optional(),
   dsaTopic: z.string().optional(),
   examples: z.array(z.object({
     input: z.string(),

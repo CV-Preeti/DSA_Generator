@@ -244,6 +244,13 @@ export default function Home() {
                   <div className="flex flex-wrap gap-2">
                     <Badge variant="outline">{q.dsaTopic}</Badge>
                     <Badge variant="secondary">{q.difficulty}</Badge>
+                    {q.practiceUrl && (
+                      <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200 hover:bg-blue-100">
+                        <a href={q.practiceUrl} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1">
+                          Practice Here
+                        </a>
+                      </Badge>
+                    )}
                     {q.companyTags.map(tag => (
                       <Badge key={tag} variant="ghost" className="bg-slate-100 dark:bg-slate-800">{tag}</Badge>
                     ))}
