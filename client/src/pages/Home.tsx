@@ -252,7 +252,9 @@ export default function Home() {
                       </Badge>
                     )}
                     {q.companyTags.map(tag => (
-                      <Badge key={tag} variant="ghost" className="bg-slate-100 dark:bg-slate-800">{tag}</Badge>
+                      <Badge key={tag} variant="secondary" className="bg-slate-100 dark:bg-slate-800 text-slate-600 border-none">
+                        {tag}
+                      </Badge>
                     ))}
                   </div>
                 </div>
